@@ -1,0 +1,270 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>three.js cat head</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <style>
+        body {
+            font-family: Monospace;
+            background-color: #000;
+            color: #fff;
+            margin: 0px;
+            overflow: hidden;
+            background: radial-gradient(#abcafc 15%, #96bbf7 25%, #659df7 60%);
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <button id="reset">Reset</button>
+    <button id="mouth">Mouth</button>
+    <button id="annoyed">Annoyed</button>
+    <button id="blink">Blink</button>
+
+    <script src="js/three.js-r94.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/GLTFLoader.js"></script>
+    <script src="js/Tween.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.2/dat.gui.js"></script>
+
+    <script>
+
+			var container, stats, controls;
+			var camera, scene, renderer, light;
+			var mesh, tweenMouth = new TWEEN.Tween(), tweenAnnoyed = new TWEEN.Tween(),
+                tweenBlink = new TWEEN.Tween(), tweenBlink2 = new TWEEN.Tween();
+
+			var clock = new THREE.Clock();
+
+			init();
+			animate();
+
+
+			const gui = new dat.GUI({ height : 5 * 32 - 1});
+			var morphFolder = gui.addFolder('Morph Targets');
+			const morphMeshes = [];
+
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.25, 2000 );
+				camera.position.set( 0, 0, -6.7 );
+
+				controls = new THREE.OrbitControls(camera);
+				controls.maxPolarAngle = Math.PI / 2 - 0.00001;
+				controls.enablePan = false;
+			    controls.minDistance = 5;
+                controls.maxDistance = 25;
+				controls.update();
+
+				scene = new THREE.Scene();
+
+			    //LIGHTS
+
+				var dir_light1 = new THREE.DirectionalLight(0xffffff, 0.8);
+				dir_light1.position.set(-100, 0, 0);
+				scene.add(dir_light1);
+
+				var dir_light2 = new THREE.DirectionalLight(0xffffff, 0.8);
+				dir_light2.position.set(100, 0, 0);
+				scene.add(dir_light2);
+
+				var dir_light3 = new THREE.DirectionalLight(0xffffff, 0.8);
+				dir_light3.position.set(0, 100, 0);
+				scene.add(dir_light3);
+
+				var dir_light4 = new THREE.DirectionalLight(0xffffff, 0.8);
+				dir_light4.position.set(0, 0, 100);
+				scene.add(dir_light4);
+
+				var dir_light5 = new THREE.DirectionalLight(0xffffff, 0.8);
+				dir_light5.position.set(0, 0, -100);
+				scene.add(dir_light5);
+
+
+				var amb = new THREE.AmbientLight(0x111111);
+				scene.add(amb);
+
+			    // model			
+				var loader = new THREE.GLTFLoader();
+				loader.load( 'cat/cat-head.gltf', function ( gltf ) {
+
+				    var cat = gltf.scene;
+				    console.log(cat);
+
+				    cat.traverse(function (node) {
+
+				        if (node.isMesh && node.morphTargetInfluences) {
+				            mesh = node;
+				            morphMeshes.push(node);
+				        }
+				        
+				    });
+
+				    if (morphMeshes.length) {
+
+				        morphMeshes.forEach(function (mesh) {
+
+				            if (mesh.morphTargetInfluences.length) {
+				                const nameCtrl = morphFolder.add({ name: mesh.name || 'Untitled' }, 'name');
+				            }
+
+				            for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
+				                const ctrl = morphFolder.add(mesh.morphTargetInfluences, i, 0, 1, 0.01).listen();
+				            }
+
+				        });
+				    }
+
+				    /***
+                    *** mesh.morphTargetInfluences[0] = Mouth Opening/Shock
+                    *** mesh.morphTargetInfluences[1] = Blink
+                    *** mesh.morphTargetInfluences[2] = Annoyed
+                    *** mesh.morphTargetInfluences[3] = Concerned
+                    *** mesh.morphTargetInfluences[4] = Smile
+                    */
+                    
+                    //Mouth open and close
+				    tweenMouth.onUpdate(function () {
+				        if (mesh.morphTargetInfluences[0] <= 1) {
+				            mesh.morphTargetInfluences[0] += 0.05;
+				        }		        
+				    });
+				    tweenMouth.easing(TWEEN.Easing.Exponential.InOut);
+
+
+                    //Annoyed expression
+				    tweenAnnoyed.onUpdate(function () {
+				        if (mesh.morphTargetInfluences[2] <= 1) {
+				            mesh.morphTargetInfluences[2] += 0.05;
+				        }
+				    });
+				    tweenAnnoyed.easing(TWEEN.Easing.Exponential.InOut);
+				    
+				 
+				    scene.add(cat);
+
+				});
+			
+				document.getElementById('reset').addEventListener('click', function () {
+
+				    tweenMouth.stop();
+				    tweenAnnoyed.stop();
+				   // tweenBlink.stop(); //keep blinking or not??
+
+				    var tweenReset = new TWEEN.Tween();
+
+				    if (mesh !== undefined) {
+
+				        tweenReset.onUpdate(function () {
+
+				            for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
+
+				                    if (mesh.morphTargetInfluences[i] > 0) {
+				                        mesh.morphTargetInfluences[i] -= 0.05;
+				                    }
+				                }
+				        });
+
+				            tweenReset.easing(TWEEN.Easing.Exponential.InOut);
+				            tweenReset.start();			            
+				    }
+				    			  
+				});
+
+				renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.gammaOutput = true;
+				container.appendChild( renderer.domElement );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			document.getElementById('mouth').addEventListener('click', function () {
+			    /*STOP OTHER MORPH TARGETS IF THEY CURRENTLY SET
+			    if (mesh) {
+			        mesh.morphTargetInfluences[2] = 0;
+			        tweenAnnoyed.stop();
+			    }*/
+
+			    tweenMouth.start();
+			});
+
+			document.getElementById('annoyed').addEventListener('click', function () {
+			    if (mesh) {
+			        mesh.morphTargetInfluences[0] = 0;
+			        tweenMouth.stop();
+			    }
+			    tweenAnnoyed.start();
+			});
+			
+
+			document.getElementById('blink').addEventListener('click', function () {
+
+			   var blink = mesh.morphTargetInfluences[1];
+
+			    tweenBlink.to(blink, 100); //quick speed of blink
+			    tweenBlink.onUpdate(function () {
+			       // if (mesh.morphTargetInfluences[1] <= 1) {
+			            mesh.morphTargetInfluences[1] = 1;
+			       // }
+			    });
+
+			    var tweenBlink2 = new TWEEN.Tween();
+
+			    tweenBlink2.onUpdate(function () {
+                     //  if (mesh.morphTargetInfluences[1] > 0) {
+                           mesh.morphTargetInfluences[1] = 0;
+                     //  }
+                   });
+                   
+			    tweenBlink.easing(TWEEN.Easing.Bounce.InOut);
+			    tweenBlink2.easing(TWEEN.Easing.Bounce.InOut);
+
+			    tweenBlink.chain(tweenBlink2);
+			    tweenBlink2.chain(tweenBlink);
+
+			    tweenBlink.delay(5000); //blink once every 5 seconds
+			    tweenBlink.start();
+
+			});
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+
+			    requestAnimationFrame(animate);
+
+			    TWEEN.update();
+
+				render();
+			}
+
+			function render() {
+
+			    renderer.render(scene, camera);
+
+			}
+
+    </script>
+
+</body>
+</html>
