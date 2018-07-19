@@ -1,9 +1,12 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <title>Animated Cat</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css?family=Poppins:200" rel="stylesheet">
 
     <style>
         body {
@@ -13,313 +16,390 @@
             margin: 0px;
             overflow: hidden;
             font-family: 'Poppins', sans-serif;
-            background: radial-gradient(#abcafc 15%, #96bbf7 25%, #659df7 60%);
+            background: radial-gradient(#c1daff 5%, #8394ad 25%, #495260 60%);
         }
+
+        
+        .menuTopNav {
+            overflow: hidden;
+            background-color: #2b313a ;
+        }
+
+        .title {
+            font-size: 30px;
+            margin-left: 12px;
+            display: inline-block;
+            line-height: 90px;
+        }
+
+        .menu_button {
+            float: right;
+            margin-top: 5px;
+            margin-right: 30px;
+            width: 80px;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+        }
+
+            .menu_button:hover {
+                color: #fff;
+                border-bottom: 3px solid #fff;
+            }
+
+            .menu_button:focus, #colourReset:focus, #transformReset:focus, .materialBtn:focus, #resetMaterial:focus, select:focus {
+                outline: 0;
+            }
+
+        .menuTopNav .icon {
+            display: none;
+        }
+
+        #gui { 
+             position: absolute;
+             top: 90px;
+             right: 0;
+             font-size: 12px;
+             width: 100%;
+             display: none;
+        }
+
 
         #credit {
             position: absolute;
             bottom: 0
         }
+
      
 
     </style>
 </head>
 
 <body>
+    <div id="container">
+
+        <div class="menuTopNav" id="menuTopNav">
+            <span class="title">Animated Cat</span>
 
-    <div id="credit">Cat model created following <a href="https://www.youtube.com/watch?v=smHa2ay7zDQ" target="_blank">this tutorial</a> by Alimayo Arango</div>
+            <a href="#" class="menu_button" id="smile">
+                <img src="images/faces/smile.png"><br />
+                Smile
+            </a>
+            <a href="#" class="menu_button" id="concerned">
+                <img src="images/faces/worried.png"><br />
+                Concerned
+            </a>
+            <a href="#" class="menu_button" id="annoyed">
+                <img src="images/faces/angry.png"><br />
+                Annoyed
+            </a>
+            <a href="#" class="menu_button" id="mouth">
+                <img src="images/faces/surprised.png"><br />
+                Surprised
+            </a>
+            <a href="#" class="menu_button" id="normal">
+                <img src="images/faces/neutral.png"><br />
+                Normal
+            </a>
+            <!--Show mobile menu bars on resize-->
+            <a href="javascript:void(0);" class="icon" onclick="mobileMenu()">
+                <i class="fa fa-bars"></i>
+            </a>
 
-    <button id="normal">Normal</button>
-    <button id="mouth">Mouth</button>
-    <button id="annoyed">Annoyed</button>
-    <button id="concerned">Concerned</button>
-    <button id="smile">Smile</button>
+        </div>
 
-    <script src="js/three.js-r94.js"></script>
-    <script src="js/OrbitControls.js"></script>
-    <script src="js/GLTFLoader.js"></script>
-    <script src="js/Tween.js"></script>
+    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.2/dat.gui.js"></script>
+        <div id="credit">Cat model created following <a href="https://www.youtube.com/watch?v=smHa2ay7zDQ" target="_blank"><span style="color:yellow">this tutorial</span></a> by Alimayo Arango</div>
 
-    <script>
+        <script src="js/three.js-r94.js"></script>
+        <script src="js/OrbitControls.js"></script>
+        <script src="js/GLTFLoader.js"></script>
+        <script src="js/Tween.js"></script>
 
-			var container, stats, controls;
-			var camera, scene, renderer, light;
-			var mesh, tweenMouth = new TWEEN.Tween(), tweenAnnoyed = new TWEEN.Tween(),
-				  tweenConcerned = new TWEEN.Tween(), tweenSmile = new TWEEN.Tween(),
-				  tweenBlink = new TWEEN.Tween(), tweenBlink2 = new TWEEN.Tween();
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.2/dat.gui.js"></script>
 
-			var clock = new THREE.Clock();
+        <script>
 
-			init();
-			animate();
+            var container, stats, controls;
+            var camera, scene, renderer, light;
+            var mesh, tweenMouth = new TWEEN.Tween(), tweenAnnoyed = new TWEEN.Tween(),
+                tweenConcerned = new TWEEN.Tween(), tweenSmile = new TWEEN.Tween(),
+                tweenBlink = new TWEEN.Tween(), tweenBlink2 = new TWEEN.Tween();
 
+            var clock = new THREE.Clock();
 
-			const gui = new dat.GUI({ height : 5 * 32 - 1});
-			var morphFolder = gui.addFolder('Morph Targets');
-			const morphMeshes = [];
+            init();
+            animate();
 
 
-			function init() {
+            const gui = new dat.GUI({ height: 5 * 32 - 1 });
+            gui.domElement.id = 'gui';
+            var morphFolder = gui.addFolder('Morph Targets');
+            const morphMeshes = [];
 
-				container = document.createElement( 'div' );
-				document.body.appendChild( container );
 
-				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.25, 2000 );
-				camera.position.set( 0, 0, -6.7 );
+            function init() {
 
-				controls = new THREE.OrbitControls(camera);
-				controls.maxPolarAngle = Math.PI / 2 - 0.00001;
-				controls.enablePan = false;
-			        controls.minDistance = 5;
-                		controls.maxDistance = 25;
-				controls.update();
+                container = document.createElement('div');
+                document.body.appendChild(container);
 
-				scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.set(0, 1.5, -6.7);
 
-			    //LIGHTS
+                controls = new THREE.OrbitControls(camera);
+                controls.maxPolarAngle = Math.PI / 2 - 0.00001;
+                controls.enablePan = false;
+                controls.minDistance = 5;
+                controls.maxDistance = 25;
+                controls.update();
 
-				var dir_light1 = new THREE.DirectionalLight(0xffffff, 0.8);
-				dir_light1.position.set(-100, 0, 0);
-				scene.add(dir_light1);
+                scene = new THREE.Scene();
 
-				var dir_light2 = new THREE.DirectionalLight(0xffffff, 0.8);
-				dir_light2.position.set(100, 0, 0);
-				scene.add(dir_light2);
+                //LIGHTS
 
-				var dir_light3 = new THREE.DirectionalLight(0xffffff, 0.8);
-				dir_light3.position.set(0, 100, 0);
-				scene.add(dir_light3);
+                var dir_light1 = new THREE.DirectionalLight(0xffffff, 0.8);
+                dir_light1.position.set(-100, 0, 0);
+                scene.add(dir_light1);
+
+                var dir_light2 = new THREE.DirectionalLight(0xffffff, 0.8);
+                dir_light2.position.set(100, 0, 0);
+                scene.add(dir_light2);
+
+                var dir_light3 = new THREE.DirectionalLight(0xffffff, 0.8);
+                dir_light3.position.set(0, 100, 0);
+                scene.add(dir_light3);
+
+                var dir_light4 = new THREE.DirectionalLight(0xffffff, 0.8);
+                dir_light4.position.set(0, 0, 100);
+                scene.add(dir_light4);
+
+                var dir_light5 = new THREE.DirectionalLight(0xffffff, 0.8);
+                dir_light5.position.set(0, 0, -100);
+                scene.add(dir_light5);
+
+
+                var amb = new THREE.AmbientLight(0x111111);
+                scene.add(amb);
+
+                // model
+                var loader = new THREE.GLTFLoader();
+                loader.load('gltf/cat/cat-head.gltf', function (gltf) {
+
+                    var cat = gltf.scene;
+                    console.log(cat);
+
+                    cat.traverse(function (node) {
+
+                        if (node.isMesh && node.morphTargetInfluences) {
+                            mesh = node;
+                            morphMeshes.push(node);
+                        }
+
+                    });
+
+                    if (morphMeshes.length) {
+
+                        morphMeshes.forEach(function (mesh) {
+
+                            if (mesh.morphTargetInfluences.length) {
+                                const nameCtrl = morphFolder.add({ name: mesh.name || 'Untitled' }, 'name');
+                            }
+
+                            for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
+                                const ctrl = morphFolder.add(mesh.morphTargetInfluences, i, 0, 1, 0.01).listen();
+                            }
 
-				var dir_light4 = new THREE.DirectionalLight(0xffffff, 0.8);
-				dir_light4.position.set(0, 0, 100);
-				scene.add(dir_light4);
+                        });
+                    }
 
-				var dir_light5 = new THREE.DirectionalLight(0xffffff, 0.8);
-				dir_light5.position.set(0, 0, -100);
-				scene.add(dir_light5);
+                    /***
+                    *** mesh.morphTargetInfluences[0] = Mouth Opening/Shock
+                    *** mesh.morphTargetInfluences[1] = Blink
+                    *** mesh.morphTargetInfluences[2] = Annoyed
+                    *** mesh.morphTargetInfluences[3] = Concerned
+                    *** mesh.morphTargetInfluences[4] = Smile
+                    */
 
+                    //Mouth open and close
+                    tweenMouth.onUpdate(function () {
+                        if (mesh.morphTargetInfluences[0] <= 1) {
+                            mesh.morphTargetInfluences[0] += 0.05;
+                        }
+                        //Run morph target for mouth opening and close any other currently run expressions, so that only this one is displayed
+                        //(Switching expressions)
+                        for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
 
-				var amb = new THREE.AmbientLight(0x111111);
-				scene.add(amb);
+                            if (mesh.morphTargetInfluences[i] > 0 && mesh.morphTargetInfluences[i] !== mesh.morphTargetInfluences[0]) {
+                                mesh.morphTargetInfluences[i] -= 0.05;
+                            }
+                        }
+                    });
+                    tweenMouth.easing(TWEEN.Easing.Exponential.InOut);
 
-			    // model			
-				var loader = new THREE.GLTFLoader();
-				loader.load( 'cat/cat-head.gltf', function ( gltf ) {
 
-				    var cat = gltf.scene;
-				    console.log(cat);
+                    //Annoyed expression
+                    tweenAnnoyed.onUpdate(function () {
+                        if (mesh.morphTargetInfluences[2] <= 1) {
+                            mesh.morphTargetInfluences[2] += 0.05;
+                        }
 
-				    cat.traverse(function (node) {
+                        for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
 
-				        if (node.isMesh && node.morphTargetInfluences) {
-				            mesh = node;
-				            morphMeshes.push(node);
-				        }
-				        
-				    });
+                            if (mesh.morphTargetInfluences[i] > 0 && mesh.morphTargetInfluences[i] !== mesh.morphTargetInfluences[2]) {
+                                mesh.morphTargetInfluences[i] -= 0.05;
+                            }
+                        }
+                    });
+                    tweenAnnoyed.easing(TWEEN.Easing.Exponential.InOut);
 
-				    if (morphMeshes.length) {
 
-				        morphMeshes.forEach(function (mesh) {
+                    tweenConcerned.onUpdate(function () {
+                        if (mesh.morphTargetInfluences[3] <= 1) {
+                            mesh.morphTargetInfluences[3] += 0.05;
+                        }
+                        //Run morph target for mouth opening and close any other currently run expressions, so that only this one is displayed
+                        //(Switching expressions)
+                        for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
 
-				            if (mesh.morphTargetInfluences.length) {
-				                const nameCtrl = morphFolder.add({ name: mesh.name || 'Untitled' }, 'name');
-				            }
-
-				            for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
-				                const ctrl = morphFolder.add(mesh.morphTargetInfluences, i, 0, 1, 0.01).listen();
-				            }
-
-				        });
-				    }
-
-				    /***
-				    *** mesh.morphTargetInfluences[0] = Mouth Opening/Shock
-				    *** mesh.morphTargetInfluences[1] = Blink
-				    *** mesh.morphTargetInfluences[2] = Annoyed
-				    *** mesh.morphTargetInfluences[3] = Concerned
-				    *** mesh.morphTargetInfluences[4] = Smile
-				    */
-
-				    //Mouth open and close
-				    tweenMouth.onUpdate(function () {
-				        if (mesh.morphTargetInfluences[0] <= 1) {
-				            mesh.morphTargetInfluences[0] += 0.05;
-				        }
-				        //Run morph target for mouth opening and close any other currently run expressions, so that only this one is displayed
-                        		//(Switching expressions)
-				        for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
-
-				            if (mesh.morphTargetInfluences[i] > 0 && mesh.morphTargetInfluences[i] !== mesh.morphTargetInfluences[0]) {
-				                mesh.morphTargetInfluences[i] -= 0.05;
-				            }
-				        }
-				    });
-				    tweenMouth.easing(TWEEN.Easing.Exponential.InOut);
-
-
-                    		   //Annoyed expression
-				    tweenAnnoyed.onUpdate(function () {
-				        if (mesh.morphTargetInfluences[2] <= 1) {
-				            mesh.morphTargetInfluences[2] += 0.05;
-				        }
-
-				        for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
-
-				            if (mesh.morphTargetInfluences[i] > 0 && mesh.morphTargetInfluences[i] !== mesh.morphTargetInfluences[2]) {
-				                mesh.morphTargetInfluences[i] -= 0.05;
-				            }
-				        }
-				    });
-				    tweenAnnoyed.easing(TWEEN.Easing.Exponential.InOut);
-
-
-				    tweenConcerned.onUpdate(function () {
-				        if (mesh.morphTargetInfluences[3] <= 1) {
-				            mesh.morphTargetInfluences[3] += 0.05;
-				        }
-				        //Run morph target for mouth opening and close any other currently run expressions, so that only this one is displayed
-				        //(Switching expressions)
-				        for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
-
-				            if (mesh.morphTargetInfluences[i] > 0 && mesh.morphTargetInfluences[i] !== mesh.morphTargetInfluences[3]) {
-				                mesh.morphTargetInfluences[i] -= 0.05;
-				            }
-				        }
-				    });
-				    tweenConcerned.easing(TWEEN.Easing.Exponential.InOut);
+                            if (mesh.morphTargetInfluences[i] > 0 && mesh.morphTargetInfluences[i] !== mesh.morphTargetInfluences[3]) {
+                                mesh.morphTargetInfluences[i] -= 0.05;
+                            }
+                        }
+                    });
+                    tweenConcerned.easing(TWEEN.Easing.Exponential.InOut);
 
 
-				    tweenSmile.onUpdate(function () {
-				        if (mesh.morphTargetInfluences[4] <= 1) {
-				            mesh.morphTargetInfluences[4] += 0.05;
-				        }
-				        //Run morph target for mouth opening and close any other currently run expressions, so that only this one is displayed
-				        //(Switching expressions)
-				        for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
+                    tweenSmile.onUpdate(function () {
+                        if (mesh.morphTargetInfluences[4] <= 1) {
+                            mesh.morphTargetInfluences[4] += 0.05;
+                        }
+                        //Run morph target for mouth opening and close any other currently run expressions, so that only this one is displayed
+                        //(Switching expressions)
+                        for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
 
-				            if (mesh.morphTargetInfluences[i] > 0 && mesh.morphTargetInfluences[i] !== mesh.morphTargetInfluences[4]) {
-				                mesh.morphTargetInfluences[i] -= 0.05;
-				            }
-				        }
-				    });
-				    tweenSmile.easing(TWEEN.Easing.Exponential.InOut);
+                            if (mesh.morphTargetInfluences[i] > 0 && mesh.morphTargetInfluences[i] !== mesh.morphTargetInfluences[4]) {
+                                mesh.morphTargetInfluences[i] -= 0.05;
+                            }
+                        }
+                    });
+                    tweenSmile.easing(TWEEN.Easing.Exponential.InOut);
 
-				    
-                    		   //Show cat blinking (morphTarget) automatically when loaded
-				    var blink = mesh.morphTargetInfluences[1];
 
-				    tweenBlink.to(blink, 100); //quick speed of blink
-				    tweenBlink.onUpdate(function () {
-				        mesh.morphTargetInfluences[1] = 1;
-				    });
+                    //Show cat blinking (morphTarget) automatically when loaded
+                    var blink = mesh.morphTargetInfluences[1];
 
-				    var tweenBlink2 = new TWEEN.Tween();
+                    tweenBlink.to(blink, 100); //quick speed of blink
+                    tweenBlink.onUpdate(function () {
+                        mesh.morphTargetInfluences[1] = 1;
+                    });
 
-				    tweenBlink2.onUpdate(function () {
-				        mesh.morphTargetInfluences[1] = 0;
-				    });
+                    var tweenBlink2 = new TWEEN.Tween();
 
-				    tweenBlink.easing(TWEEN.Easing.Bounce.InOut);
-				    tweenBlink2.easing(TWEEN.Easing.Bounce.InOut);
+                    tweenBlink2.onUpdate(function () {
+                        mesh.morphTargetInfluences[1] = 0;
+                    });
 
-				    tweenBlink.chain(tweenBlink2);
-				    tweenBlink2.chain(tweenBlink);
+                    tweenBlink.easing(TWEEN.Easing.Bounce.InOut);
+                    tweenBlink2.easing(TWEEN.Easing.Bounce.InOut);
 
-				    tweenBlink.delay(5000); //blink once every 5 seconds
-				    tweenBlink.start();
-				 
-				    scene.add(cat);
+                    tweenBlink.chain(tweenBlink2);
+                    tweenBlink2.chain(tweenBlink);
 
-				});
-			
-				document.getElementById('normal').addEventListener('click', function () {
+                    tweenBlink.delay(5000); //blink once every 5 seconds
+                    tweenBlink.start();
 
-				    tweenMouth.stop();
-				    tweenAnnoyed.stop();
+                    cat.translateY(1.5);
+                    scene.add(cat);
 
-				    var tweenReset = new TWEEN.Tween();
+                });
 
-				    if (mesh !== undefined) {
+                document.getElementById('normal').addEventListener('click', function () {
 
-				        tweenReset.onUpdate(function () {
+                    tweenMouth.stop();
+                    tweenAnnoyed.stop();
+                    // tweenBlink.stop(); //keep blinking or not??
 
-				            for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
+                    var tweenReset = new TWEEN.Tween();
 
-				                    if (mesh.morphTargetInfluences[i] > 0) {
-				                        mesh.morphTargetInfluences[i] -= 0.05;
-				                    }
-				                }
-				        });
+                    if (mesh !== undefined) {
 
-				            tweenReset.easing(TWEEN.Easing.Exponential.InOut);
-				            tweenReset.start();			            
-				    }
-				    			  
-				});
+                        tweenReset.onUpdate(function () {
 
-				renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				renderer.gammaOutput = true;
-				container.appendChild( renderer.domElement );
+                            for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
 
-				window.addEventListener( 'resize', onWindowResize, false );
+                                if (mesh.morphTargetInfluences[i] > 0) {
+                                    mesh.morphTargetInfluences[i] -= 0.05;
+                                }
+                            }
+                        });
 
-			}
+                        tweenReset.easing(TWEEN.Easing.Exponential.InOut);
+                        tweenReset.start();
+                    }
 
-			document.getElementById('mouth').addEventListener('click', function () {
+                });
 
-			    tweenMouth.start();
-			});
+                renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                renderer.setPixelRatio(window.devicePixelRatio);
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.gammaOutput = true;
+                container.appendChild(renderer.domElement);
 
-			document.getElementById('annoyed').addEventListener('click', function () {
+                window.addEventListener('resize', onWindowResize, false);
 
-			    tweenAnnoyed.start();
-			});
-		
+            }
 
-			document.getElementById('concerned').addEventListener('click', function () {
+            document.getElementById('mouth').addEventListener('click', function () {
 
-			    tweenConcerned.start();
-			});
+                tweenMouth.start();
+            });
 
-			document.getElementById('smile').addEventListener('click', function () {
+            document.getElementById('annoyed').addEventListener('click', function () {
 
-			    tweenSmile.start();
-			});
+                tweenAnnoyed.start();
+            });
 
 
-			function onWindowResize() {
+            document.getElementById('concerned').addEventListener('click', function () {
 
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
+                tweenConcerned.start();
+            });
 
-				renderer.setSize( window.innerWidth, window.innerHeight );
+            document.getElementById('smile').addEventListener('click', function () {
 
-			}
+                tweenSmile.start();
+            });
 
-			function animate() {
 
-			    requestAnimationFrame(animate);
+            function onWindowResize() {
 
-			    TWEEN.update();		    
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
 
-				render();
-			}
+                renderer.setSize(window.innerWidth, window.innerHeight);
 
+            }
 
-			function render() {
+            function animate() {
 
-			    renderer.render(scene, camera);
+                requestAnimationFrame(animate);
 
-			}
+                TWEEN.update();
 
+                render();
+            }
 
 
-    </script>
+            function render() {
+
+                renderer.render(scene, camera);
+
+            }
+
+
+
+        </script>
 
 </body>
 </html>
