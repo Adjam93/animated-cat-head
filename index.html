@@ -152,13 +152,17 @@
             const morphMeshes = [];
 
 
-            function init() {
-
-                container = document.createElement('div');
-                document.body.appendChild(container);
-
+            function init() {               
+               
                 camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
                 camera.position.set(0, 1.5, -6.7);
+                
+                renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                renderer.setPixelRatio(window.devicePixelRatio);
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.gammaOutput = true;
+                document.body.appendChild(renderer.domElement);
+
 
                 controls = new THREE.OrbitControls(camera);
                 controls.maxPolarAngle = Math.PI / 2 - 0.00001;
@@ -352,12 +356,6 @@
                     }
 
                 });
-
-                renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-                renderer.setPixelRatio(window.devicePixelRatio);
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                renderer.gammaOutput = true;
-                container.appendChild(renderer.domElement);
 
                 window.addEventListener('resize', onWindowResize, false);
 
