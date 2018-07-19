@@ -47,8 +47,8 @@
 			var container, stats, controls;
 			var camera, scene, renderer, light;
 			var mesh, tweenMouth = new TWEEN.Tween(), tweenAnnoyed = new TWEEN.Tween(),
-                tweenConcerned = new TWEEN.Tween(), tweenSmile = new TWEEN.Tween(),
-                tweenBlink = new TWEEN.Tween(), tweenBlink2 = new TWEEN.Tween();
+				  tweenConcerned = new TWEEN.Tween(), tweenSmile = new TWEEN.Tween(),
+				  tweenBlink = new TWEEN.Tween(), tweenBlink2 = new TWEEN.Tween();
 
 			var clock = new THREE.Clock();
 
@@ -72,8 +72,8 @@
 				controls = new THREE.OrbitControls(camera);
 				controls.maxPolarAngle = Math.PI / 2 - 0.00001;
 				controls.enablePan = false;
-			    controls.minDistance = 5;
-                controls.maxDistance = 25;
+			        controls.minDistance = 5;
+                		controls.maxDistance = 25;
 				controls.update();
 
 				scene = new THREE.Scene();
@@ -106,7 +106,7 @@
 
 			    // model			
 				var loader = new THREE.GLTFLoader();
-				loader.load( 'gltf/cat/cat-head.gltf', function ( gltf ) {
+				loader.load( 'cat/cat-head.gltf', function ( gltf ) {
 
 				    var cat = gltf.scene;
 				    console.log(cat);
