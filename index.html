@@ -158,18 +158,18 @@
                 camera.position.set(0, 1.5, -6.7);
                 
                 renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-                renderer.setPixelRatio(window.devicePixelRatio);
-                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.gammaInput = true;
                 renderer.gammaOutput = true;
+                renderer.setPixelRatio(window.devicePixelRatio);
+                renderer.setSize(window.innerWidth, window.innerHeight);            
                 document.body.appendChild(renderer.domElement);
-
 
                 controls = new THREE.OrbitControls(camera);
                 controls.maxPolarAngle = Math.PI / 2 - 0.00001;
                 controls.enablePan = false;
                 controls.minDistance = 5;
                 controls.maxDistance = 25;
-                controls.update();
+               
 
                 scene = new THREE.Scene();
 
@@ -397,6 +397,7 @@
                 requestAnimationFrame(animate);
 
                 TWEEN.update();
+                controls.update();
 
                 render();
             }
