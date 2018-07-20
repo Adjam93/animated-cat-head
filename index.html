@@ -305,10 +305,14 @@
                         morphMeshes.push(node);
                     }
 
-                    if (node.material) {
+                      if (node.material) {
+
+                        for (var i = 0; i < node.material.length; i++) {
+
+                            node.material[i].precision = 'mediump';
+                        }
 
                         node.material.precision = 'mediump';
-                        // node.material.map.encoding = THREE.sRGBEncoding;
                     } 
 
                 });
