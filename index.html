@@ -333,17 +333,26 @@
 
                 });
 
+                var morphAttributes = mesh.geometry.morphAttributes;
+                morphAttributes.position[0].name = 'Surprised';
+                morphAttributes.position[1].name = 'Blink';
+                morphAttributes.position[2].name = 'Annoyed';
+                morphAttributes.position[3].name = 'Concerned';
+                morphAttributes.position[4].name = 'Smile';
+
                 if (morphMeshes.length) {
 
                     morphMeshes.forEach(function (mesh) {
 
-                        for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
-                            const targets = morphFolder.add(mesh.morphTargetInfluences, i, 0, 1, 0.01).listen();
+                        for (let i = 0; i < mesh.morphTargetInfluences.length && i < morphAttributes.position.length ; i++) {
+
+                            const targets = morphFolder.add(mesh.morphTargetInfluences, i, 0, 1, 0.01).name(morphAttributes.position[i].name).listen();                        
                         }
 
                     });
-                }
 
+                }
+		    
                 //Mouth open and close
                 tweenMouth.onUpdate(function () {
                     if (mesh.morphTargetInfluences[0] <= 1) {
