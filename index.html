@@ -50,10 +50,6 @@
                 outline: 0;
             }
 
-        .menuTopNav .icon {
-            display: none;
-        }
-
         #gui { 
              position: absolute;
              top: 90px;
@@ -251,7 +247,7 @@
 
         const gui = new dat.GUI({ height: 5 * 32 - 1 });
         gui.domElement.id = 'gui';
-        var morphFolder = gui.addFolder('Morph Targets');
+        var morphFolder = gui.addFolder('Combine Expressions');
         const morphMeshes = [];
 
         function init() {
