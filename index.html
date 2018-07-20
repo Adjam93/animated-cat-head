@@ -17,13 +17,14 @@
             font-family: 'Poppins', sans-serif;
             background: radial-gradient(#c1daff 5%, #8394ad 25%, #495260 60%);
         }
-     
+
+        
         .menuTopNav {
             overflow: hidden;
             background-color: #2b313a ;
         }
 
-        .title {
+        .header {
             font-size: 30px;
             margin-left: 12px;
             display: inline-block;
@@ -53,9 +54,17 @@
             display: none;
         }
 
+        #gui { 
+             position: absolute;
+             top: 90px;
+             right: -1.35em;
+             width: 100%;
+             display: none;
+        }
+
         @media screen and (max-width: 768px) {
 
-            .title{
+            .header{
                 display: none
             }
              .menuTopNav {
@@ -74,15 +83,13 @@
                 
             }
 
-        }
-
-        #gui { 
-             position: absolute;
-             top: 90px;
-             right: 0;
-             font-size: 12px;
-             width: 100%;
-             display: none;
+             #gui { 
+                 position: absolute;
+                 top: 0;
+                 right: -1.35em;
+                 width: 100%;
+                 opacity: 0.7;
+            }
         }
 
         #credit {
@@ -90,7 +97,7 @@
             bottom: 0;
             font-size: 12px;
         }
-       
+        
         #loading-screen {
 	        position: absolute;
 	        z-index: 2;
@@ -170,16 +177,20 @@
                 -ms-transform: rotate(360deg);
                 transform: rotate(360deg);
             }
-        }  
+        }
+     
 
     </style>
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+
 </head>
 
 <body>
     <div id="container">
 
         <div class="menuTopNav" id="menuTopNav">
-            <span class="title">Animated Cat</span>
+            <span class="header">Animated Cat</span>
 
             <a href="#" class="menu_button" id="smile">
                 <img src="images/faces/smile.png"><br />
@@ -200,6 +211,10 @@
             <a href="#" class="menu_button" id="normal">
                 <img src="images/faces/neutral.png"><br />
                 Normal
+            </a>
+            <a href="#" class="menu_button" id="combine">
+                <img src="images/faces/combine.png"><br />
+                Combine
             </a>
 
         </div>
@@ -305,7 +320,7 @@
                         morphMeshes.push(node);
                     }
 
-                      if (node.material) {
+                    if (node.material) {
 
                         for (var i = 0; i < node.material.length; i++) {
 
@@ -321,28 +336,15 @@
 
                     morphMeshes.forEach(function (mesh) {
 
-                        if (mesh.morphTargetInfluences.length) {
-                            const nameCtrl = morphFolder.add({ name: mesh.name || 'Untitled' }, 'name');
-                        }
-
                         for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
-                            const ctrl = morphFolder.add(mesh.morphTargetInfluences, i, 0, 1, 0.01).listen();
+                            const targets = morphFolder.add(mesh.morphTargetInfluences, i, 0, 1, 0.01).listen();
                         }
 
                     });
                 }
 
-                /***
-                *** mesh.morphTargetInfluences[0] = Mouth Opening/Shock
-                *** mesh.morphTargetInfluences[1] = Blink
-                *** mesh.morphTargetInfluences[2] = Annoyed
-                *** mesh.morphTargetInfluences[3] = Concerned
-                *** mesh.morphTargetInfluences[4] = Smile
-                */
-
                 //Mouth open and close
                 tweenMouth.onUpdate(function () {
-                    
                     if (mesh.morphTargetInfluences[0] <= 1) {
                         mesh.morphTargetInfluences[0] += 0.05;
                     }
@@ -357,10 +359,9 @@
                 });
                 tweenMouth.easing(TWEEN.Easing.Exponential.InOut);
 
-
                 //Annoyed expression
                 tweenAnnoyed.onUpdate(function () {
-                    
+			
                     if (mesh.morphTargetInfluences[2] <= 1) {
                         mesh.morphTargetInfluences[2] += 0.05;
                     }
@@ -376,11 +377,11 @@
 
 
                 tweenConcerned.onUpdate(function () {
-                    
+			
                     if (mesh.morphTargetInfluences[3] <= 1) {
                         mesh.morphTargetInfluences[3] += 0.05;
                     }
-                    
+
                     for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
 
                         if (mesh.morphTargetInfluences[i] > 0 && mesh.morphTargetInfluences[i] !== mesh.morphTargetInfluences[3]) {
@@ -390,9 +391,8 @@
                 });
                 tweenConcerned.easing(TWEEN.Easing.Exponential.InOut);
 
-
                 tweenSmile.onUpdate(function () {
-                    
+			
                     if (mesh.morphTargetInfluences[4] <= 1) {
                         mesh.morphTargetInfluences[4] += 0.05;
                     }
@@ -459,8 +459,7 @@
                 }
 
             });
-
-                
+               
             window.addEventListener('resize', onWindowResize, false);
 
         }
@@ -475,7 +474,6 @@
             tweenAnnoyed.start();
         });
 
-
         document.getElementById('concerned').addEventListener('click', function () {
 
             tweenConcerned.start();
@@ -486,6 +484,11 @@
             tweenSmile.start();
         });
 
+        document.getElementById('combine').addEventListener('click', function () {
+
+            $('#gui').toggle('slow');
+
+        });
 
         function onWindowResize() {
 
