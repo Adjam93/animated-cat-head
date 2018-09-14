@@ -57,7 +57,7 @@
     loadCat: function () {
 
         var loader = new THREE.GLTFLoader(main.loadingManager);
-        loader.load('gltf/cat/cat-head.gltf', function (gltf) {
+        loader.load('cat/cat-head.gltf', function (gltf) {
 
             var cat = gltf.scene;
 
