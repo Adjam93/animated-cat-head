@@ -1,4 +1,4 @@
-﻿var main = {
+var main = {
 
     scene: null, camera: null, renderer: null, controls: null, mesh: null, selectedExpression: null,
     tweenMouth: new TWEEN.Tween(), tweenAnnoyed: new TWEEN.Tween(), tweenConcerned: new TWEEN.Tween(),
@@ -106,14 +106,8 @@
                 if (main.mesh.morphTargetInfluences[0] <= 1) {
                     main.mesh.morphTargetInfluences[0] += 0.05;
                 }
-                //Run morph target for mouth opening and close any other currently run expressions, so that only this one is displayed
-                //(Switching expressions)
-                for (let i = 0; i < main.mesh.morphTargetInfluences.length; i++) {
-
-                    if (main.mesh.morphTargetInfluences[i] > 0 && main.mesh.morphTargetInfluences[i] !== main.mesh.morphTargetInfluences[0]) {
-                        main.mesh.morphTargetInfluences[i] -= 0.05;
-                    }
-                }
+                
+                main.switchExpression(main.mesh.morphTargetInfluences[0]);
             });
             main.tweenMouth.easing(TWEEN.Easing.Exponential.InOut);
 
@@ -123,42 +117,29 @@
                     main.mesh.morphTargetInfluences[2] += 0.05;
                 }
 
-                for (let i = 0; i < main.mesh.morphTargetInfluences.length; i++) {
-
-                    if (main.mesh.morphTargetInfluences[i] > 0 && main.mesh.morphTargetInfluences[i] !== main.mesh.morphTargetInfluences[2]) {
-                        main.mesh.morphTargetInfluences[i] -= 0.05;
-                    }
-                }
+                main.switchExpression(main.mesh.morphTargetInfluences[2]);
             });
             main.tweenAnnoyed.easing(TWEEN.Easing.Exponential.InOut);
 
             //Concerned expression
             main.tweenConcerned.onUpdate(function () {
+
                 if (main.mesh.morphTargetInfluences[3] <= 1) {
                     main.mesh.morphTargetInfluences[3] += 0.05;
                 }
 
-                for (let i = 0; i < main.mesh.morphTargetInfluences.length; i++) {
-
-                    if (main.mesh.morphTargetInfluences[i] > 0 && main.mesh.morphTargetInfluences[i] !== main.mesh.morphTargetInfluences[3]) {
-                        main.mesh.morphTargetInfluences[i] -= 0.05;
-                    }
-                }
+                main.switchExpression(main.mesh.morphTargetInfluences[3]);
             });
             main.tweenConcerned.easing(TWEEN.Easing.Exponential.InOut);
 
             //Smile expression
             main.tweenSmile.onUpdate(function () {
+
                 if (main.mesh.morphTargetInfluences[4] <= 1) {
                     main.mesh.morphTargetInfluences[4] += 0.05;
                 }
 
-                for (let i = 0; i < main.mesh.morphTargetInfluences.length; i++) {
-
-                    if (main.mesh.morphTargetInfluences[i] > 0 && main.mesh.morphTargetInfluences[i] !== main.mesh.morphTargetInfluences[4]) {
-                        main.mesh.morphTargetInfluences[i] -= 0.05;
-                    }
-                }
+                main.switchExpression(main.mesh.morphTargetInfluences[4]);
             });
             main.tweenSmile.easing(TWEEN.Easing.Exponential.InOut);
 
@@ -194,9 +175,6 @@
     clickFunctions: function () {
 
         document.getElementById('normal').addEventListener('click', function () {
-
-            main.tweenMouth.stop();
-            main.tweenAnnoyed.stop();
 
             var tweenReset = new TWEEN.Tween();
 
@@ -261,6 +239,17 @@
         ex.addClass('selected');
 
         main.selectedExpression = ex;
+    },
+
+    switchExpression: function (expression) {
+
+        //Close any other currently selected expressions, so that only the next selected one is displayed
+        for (let i = 0; i < main.mesh.morphTargetInfluences.length; i++) {
+
+            if (main.mesh.morphTargetInfluences[i] > 0 && main.mesh.morphTargetInfluences[i] !== expression) {
+                main.mesh.morphTargetInfluences[i] -= 0.05;
+            }
+        }
     }
 
 };
@@ -296,7 +285,6 @@ function onLoad() {
     main.init();
     animate();
 }
-
 
 window.addEventListener("load", onLoad, false);
 window.addEventListener('resize', onWindowResize, false);
